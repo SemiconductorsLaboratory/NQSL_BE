@@ -120,7 +120,7 @@ AWS_SES_FROM_EMAIL = getenv('AWS_SES_FROM_EMAIL')
 USE_SES_V2 = True
 
 DOMAIN = getenv('DOMAIN')
-SITE_NAME = 'Full Auth'
+SITE_NAME = 'NQSL'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

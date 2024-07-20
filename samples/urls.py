@@ -3,11 +3,12 @@ from .views import (
     sample_view,
     SampleModelCreateAPIView,
     Sample_detail,
-    SampleModelDestroyAPIView
+    SampleModelDestroyAPIView,
+    SampleModelListView,
 )
 
 urlpatterns = [
-    path('', sample_view),
+    path('', SampleModelListView.as_view(), name='_detail'),
     path('add/', SampleModelCreateAPIView.as_view(), name='samplemodel-create'),
     path('remove/', SampleModelDestroyAPIView.as_view(), name='samplemodel-create'),
     path('<str:sample_name>/', Sample_detail, name='element_detail'),
