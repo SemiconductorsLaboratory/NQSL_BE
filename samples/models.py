@@ -31,6 +31,14 @@ class SampleModel(models.Model):
         return self.name
 
 
+class Favorite(models.Model):
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    sample = models.ForeignKey(SampleModel, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.sample.name}"
+
 class SEMModel(models.Model):
     id = models.AutoField(primary_key=True)
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
