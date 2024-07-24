@@ -42,18 +42,6 @@ class SampleListView(generics.ListAPIView):
 
 
 @api_view(['GET'])
-def sample_view(request):
-    print('sample_view')
-    samples = SampleModel.objects.all().values('name')
-    return Response(list(samples))
-
-
-@api_view(['GET'])
-def sem_model_list(request, sample_name):
-    sem_models = SEMModel.objects.filter(sample__name=sample_name)
-    return Response(sem_models)
-
-@api_view(['GET'])
 def Sample_detail(request, sample_name):
     print('sample_name')
 
