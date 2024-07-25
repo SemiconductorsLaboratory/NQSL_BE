@@ -6,16 +6,59 @@ from users.models import UserAccount
 class UserMachineModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
+    firstName = models.CharField(max_length=255, blank=True, null=True)
+    lastName = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
+        return f"{self.firstName or ''} {self.lastName or ''}".strip()
+
+
+class Element(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    Symbol = models.CharField(max_length=255, blank=True, null=True)
+    atomic_number = models.IntegerField()
+
+    def __str__(self):
+        return self.Symbol
+
+
+class Layer(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    doped = models.ForeignKey(Element, on_delete=models.CASCADE, blank=True, null=True)
+    doped_percentage = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
         return self.name
+
+
+class LayerComposition(models.Model):
+    id = models.AutoField(primary_key=True)
+    layer = models.ForeignKey(Layer, on_delete=models.CASCADE)
+    element = models.ForeignKey(Element, on_delete=models.CASCADE)
+    percentage = models.FloatField()
+
+    def __str__(self):
+        return f"{self.layer.name} - {self.element.name}: {self.percentage}%"
+
+
+class LayerThickness(models.Model):
+    id = models.AutoField(primary_key=True)
+    Layers = models.ForeignKey(Layer, on_delete=models.CASCADE)
+    thickness = models.FloatField()
+    order = models.IntegerField()
+
+    def __str__(self):
+        return self.Layers.name+' - '+str(self.thickness)
 
 
 class Substrate(models.Model):
     id = models.AutoField(primary_key=True)
     Company = models.CharField(max_length=100, unique=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    Layers = models.ManyToManyField(LayerThickness)
 
 
 class SampleModel(models.Model):
@@ -39,6 +82,14 @@ class Favorite(models.Model):
     def __str__(self):
         return f"{self.user.first_name} - {self.sample.name}"
 
+
+class File(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, blank=True, null=True)
+    file = models.FileField(upload_to='File/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class SEMModel(models.Model):
     id = models.AutoField(primary_key=True)
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
@@ -49,6 +100,7 @@ class SEMModel(models.Model):
     magnification = models.BigIntegerField(blank=True, null=True)
     voltage = models.FloatField(blank=True, null=True)
     current = models.FloatField(blank=True, null=True)
+    file = models.ManyToManyField(File, blank=True)
 
     class Meta:
         verbose_name = 'SEM'
@@ -58,32 +110,14 @@ class SEMModel(models.Model):
         return f'SEMModel {self.id}'
 
 
-class SEMModelFile(models.Model):
-    my_model = models.ForeignKey(SEMModel, on_delete=models.CASCADE, related_name='files')
-    file = models.FileField(upload_to='SEM_File/')
-
-
-class Element(models.Model):
+class AFMModel(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    atomic_number = models.IntegerField()
-
-
-class Layer(models.Model):
-    name = models.CharField(max_length=100)
-    thickness = models.FloatField()
-    substrate = models.ForeignKey(Substrate, on_delete=models.CASCADE, blank=True, null=True)
-    doped = models.ForeignKey(Element, on_delete=models.CASCADE, blank=True, null=True)
-    doped_percentage = models.FloatField(blank=True, null=True)
+    sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='AFM_images/', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    file = models.ManyToManyField(File, blank=True)
 
     def __str__(self):
-        return self.name
+        return f'AFMModel {self.id}'
 
-
-class LayerComposition(models.Model):
-    layer = models.ForeignKey(Layer, on_delete=models.CASCADE)
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-    percentage = models.FloatField()
-
-    def __str__(self):
-        return f"{self.layer.name} - {self.element.name}: {self.percentage}%"

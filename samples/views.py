@@ -83,6 +83,7 @@ class FavoriteCreateView(APIView):
         except SampleModel.DoesNotExist:
             return Response({'status': 'not_found', 'sample_name': sample_name}, status=status.HTTP_404_NOT_FOUND)
 
+
 class FavoriteDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
