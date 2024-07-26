@@ -4,9 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import SampleModel, SEMModel, Favorite
+from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer
 from rest_framework import generics, status
-from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer
+from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer
 import json
 from django.views import View
 from django.shortcuts import render, get_object_or_404, redirect
@@ -41,16 +41,41 @@ class SampleListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-@api_view(['GET'])
-def Sample_detail(request, sample_name):
-    print('sample_name')
+class UserListView(generics.ListAPIView):
+    queryset = UserMachineModel.objects.all()
+    serializer_class = UserModelSerializer
+    permission_classes = [IsAuthenticated]
 
-    sem_models = SEMModel.objects.filter(sample__name=sample_name).values('created_at', 'description')
-    data = SampleModel.objects.filter(name=sample_name).values('name',
-                                                               'user__name',
-                                                               'description',
-                                                               'date_created')
-    return Response([data, sem_models])
+
+class SampleModelRetrieveByNameAPIView(generics.RetrieveAPIView):
+    queryset = SampleModel.objects.all()
+    serializer_class = SampleModelSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'name'
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = generics.get_object_or_404(queryset, name=self.kwargs['name'])
+        return obj
+
+
+class SampleDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'name'
+
+    def get(self, request, *args, **kwargs):
+        sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
+
+        layer_names = Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True)
+        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description')
+        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description')
+        response_data = {
+            'substrate': layer_names,
+            'sem': list(sem_models),
+            'afm': list(afm_models)
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class FavoriteListView(generics.ListAPIView):

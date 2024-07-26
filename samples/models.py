@@ -46,6 +46,7 @@ class LayerComposition(models.Model):
 
 class LayerThickness(models.Model):
     id = models.AutoField(primary_key=True)
+    # TODO mask
     Layers = models.ForeignKey(Layer, on_delete=models.CASCADE)
     thickness = models.FloatField()
     order = models.IntegerField()
@@ -57,6 +58,7 @@ class LayerThickness(models.Model):
 class Substrate(models.Model):
     id = models.AutoField(primary_key=True)
     Company = models.CharField(max_length=100, unique=True)
+    # TODO date recu
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     Layers = models.ManyToManyField(LayerThickness)
 

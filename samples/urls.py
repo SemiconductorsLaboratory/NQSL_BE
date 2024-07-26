@@ -1,19 +1,23 @@
 from django.urls import path, re_path
 from .views import (
     SampleModelCreateAPIView,
-    Sample_detail,
+    SampleDetailView,
     SampleDeleteView,
     SampleListView,
     FavoriteListView,
     FavoriteCreateView,
     FavoriteDeleteView,
+    SampleModelRetrieveByNameAPIView,
+    UserListView
 )
 
 urlpatterns = [
     path('', SampleListView.as_view(), name='_detail'),
+    path('user/', UserListView.as_view(), name='_detail'),
     path('add/', SampleModelCreateAPIView.as_view(), name='samplemodel-create'),
     path('remove/', SampleDeleteView.as_view(), name='samplemodel-create'),
-    path('<str:sample_name>/', Sample_detail, name='element_detail'),
+    path('description/<str:name>/', SampleModelRetrieveByNameAPIView.as_view(), name='sample_description'),
+    path('detail/<str:name>/', SampleDetailView.as_view(), name='sample_detail'),
     path('favorites/list/', FavoriteListView.as_view(), name='favorite-list'),
     path('favorites/add/', FavoriteCreateView.as_view(), name='favorite-add'),
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),

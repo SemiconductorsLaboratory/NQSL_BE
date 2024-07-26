@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SampleModel, Favorite
+from .models import SampleModel, Favorite, UserMachineModel
 
 
 class SampleNameSerializer(serializers.ModelSerializer):
@@ -9,10 +9,20 @@ class SampleNameSerializer(serializers.ModelSerializer):
 
 
 class SampleModelSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = SampleModel
-        fields = ['id', 'name', 'description', 'user', 'date_created']
+        fields = ['id', 'name', 'description', 'user', 'date_created', 'substrate', 'prev_sample']
         read_only_fields = ['id']
+
+
+class UserModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserMachineModel
+        fields = ['id', 'name', 'firstName', 'lastName']
+        read_only_fields = ['id']
+
 
 class FavoriteSerializer(serializers.ModelSerializer):
     sample_name = serializers.CharField(source='sample.name', read_only=True)
