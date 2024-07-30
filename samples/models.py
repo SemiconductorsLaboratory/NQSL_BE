@@ -93,7 +93,13 @@ class File(models.Model):
 
 
 class SEMModel(models.Model):
+    STATUS_CHOICES = [
+        ('SEM', 'SEM'),
+        ('HRSEM', 'HRSEM'),
+    ]
+
     id = models.AutoField(primary_key=True)
+    method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='SEM')
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='SEM_images/', blank=True, null=True)
@@ -113,7 +119,12 @@ class SEMModel(models.Model):
 
 
 class AFMModel(models.Model):
+    STATUS_CHOICES = [
+        ('AFM', 'AFM'),
+        ('KPAFM', 'KPAFM'),
+    ]
     id = models.AutoField(primary_key=True)
+    method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='AFM')
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='AFM_images/', blank=True, null=True)

@@ -1,4 +1,3 @@
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -11,6 +10,8 @@ import json
 from django.views import View
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+date_format = '%Y-%m-%d, %H:%M'
 
 
 class SampleModelCreateAPIView(generics.CreateAPIView):
@@ -47,16 +48,26 @@ class UserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class SampleModelRetrieveByNameAPIView(generics.RetrieveAPIView):
-    queryset = SampleModel.objects.all()
-    serializer_class = SampleModelSerializer
+class SampleDescriptionView(APIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'name'
 
-    def get_object(self):
-        queryset = self.get_queryset()
-        obj = generics.get_object_or_404(queryset, name=self.kwargs['name'])
-        return obj
+    def get(self, request, *args, **kwargs):
+        sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
+
+        layer_names = Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True)
+        prev_sample = ''
+        if sample.prev_sample is not None:
+            prev_sample = sample.prev_sample.name
+        response_data = {
+            'substrate': layer_names,
+            'date': sample.date_created.strftime(date_format),
+            'user': sample.user.name,
+            'prev_sample': prev_sample,
+            'description': sample.description
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class SampleDetailView(APIView):
@@ -67,10 +78,20 @@ class SampleDetailView(APIView):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
 
         layer_names = Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True)
-        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description')
-        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description')
+        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method')
+        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description', 'method')
+        for sem in sem_models:
+            created_at = sem['created_at']
+            sem['created_at'] = created_at.strftime(date_format)
+        for afm in afm_models:
+            created_at = afm['created_at']
+            afm['created_at'] = created_at.strftime(date_format)
+
         response_data = {
-            'substrate': layer_names,
+            'substrate': {
+                'layer': layer_names,
+                'created_at': sample.date_created.strftime(date_format)
+            },
             'sem': list(sem_models),
             'afm': list(afm_models)
         }
@@ -96,7 +117,7 @@ class FavoriteCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print('ok1')
+
         sample_name = request.data.get('sample_name')
         try:
             sample = SampleModel.objects.get(name=sample_name)
@@ -124,3 +145,25 @@ class FavoriteDeleteView(APIView):
                 return Response({'status': 'not_found', 'sample_name': sample_name}, status=status.HTTP_404_NOT_FOUND)
         except SampleModel.DoesNotExist:
             return Response({'status': 'not_found', 'sample_name': sample_name}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SEMModelView(APIView):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        sem_model = get_object_or_404(SEMModel, id=kwargs.get('id'))
+        files = [file.file.url for file in sem_model.file.all()]
+        sem_data = {
+            'id': sem_model.id,
+            'method': sem_model.method,
+            'sample': sem_model.sample.id,
+            'created_at': sem_model.created_at.strftime(date_format),
+            'image': sem_model.image.url if sem_model.image else None,
+            'description': sem_model.description,
+            'magnification': sem_model.magnification,
+            'voltage': sem_model.voltage,
+            'current': sem_model.current,
+            'files': files
+        }
+        return Response(sem_data)

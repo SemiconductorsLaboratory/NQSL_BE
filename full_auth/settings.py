@@ -98,8 +98,17 @@ if DEVELOPMENT_MODE is True:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+        },
+        'second': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'NQSL_DB',
+            'USER': 'DB_user',
+            'PASSWORD': 'DB_password',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
+   # DATABASES = {}
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
     if getenv('DATABASE_URL', None) is None:
         raise Exception('DATABASE_URL environment variable not defined')
