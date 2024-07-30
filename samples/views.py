@@ -78,8 +78,8 @@ class SampleDetailView(APIView):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
 
         layer_names = Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True)
-        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method')
-        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description', 'method')
+        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
+        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
         for sem in sem_models:
             created_at = sem['created_at']
             sem['created_at'] = created_at.strftime(date_format)
