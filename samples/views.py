@@ -186,3 +186,11 @@ class AFMModelView(APIView):
             'files': files
         }
         return Response(afm_data)
+
+
+class UserMachineListView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        user_machines = UserMachineModel.objects.all().values('id', 'name', 'firstName', 'lastName', 'user_id')
+        user_machines_list = list(user_machines)
+        return Response(user_machines_list)
