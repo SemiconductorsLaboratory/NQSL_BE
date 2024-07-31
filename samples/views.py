@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer
+from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer, LayerComposition
 from rest_framework import generics, status
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer
 import json
@@ -194,3 +194,40 @@ class UserMachineListView(APIView):
         user_machines = UserMachineModel.objects.all().values('id', 'name', 'firstName', 'lastName', 'user_id')
         user_machines_list = list(user_machines)
         return Response(user_machines_list)
+
+
+class SubstrateView(APIView):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'name'
+
+    def get(self, request, *args, **kwargs):
+        sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
+        substrate = Substrate.objects.get(id=sample.substrate_id)
+        data = {
+        'id': substrate.id,
+        'Company' : substrate.Company,
+        'date': substrate.date_created,
+        }
+        layers = []
+        for layer in substrate.Layers.all():
+            layer_data = {
+                'id_layer_thickness': layer.id,
+                'layer_thickness': layer.thickness,
+                'order': layer.order,
+                'id_layer': layer.Layers.id,
+                'name': layer.Layers.name,
+                'doped': layer.Layers.doped,
+                'doped_percentage': layer.Layers.doped_percentage
+            }
+            layer_comp = []
+            for comp in LayerComposition.objects.filter(layer=layer.Layers):
+                dict_comp = {
+                    'id': comp.layer_id,
+                    'element': comp.element.Symbol,
+                    'percentage': comp.percentage
+                }
+                layer_comp.append(dict_comp)
+            layer_data['layer_comp'] = layer_comp
+            layers.append(layer_data)
+        data['layers'] = layers
+        return Response(data)

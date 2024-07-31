@@ -8,7 +8,11 @@ from .views import (
     FavoriteCreateView,
     FavoriteDeleteView,
     SampleDescriptionView,
-    UserListView, SEMModelView, AFMModelView, UserMachineListView,
+    UserListView,
+    SEMModelView,
+    AFMModelView,
+    UserMachineListView,
+    SubstrateView,
 )
 
 urlpatterns = [
@@ -24,4 +28,5 @@ urlpatterns = [
     path('favorites/add/', FavoriteCreateView.as_view(), name='favorite-add'),
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),
     path('user-machines/', UserMachineListView.as_view(), name='user_machine_list'),
+    path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate')
 ]
