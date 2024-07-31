@@ -167,3 +167,22 @@ class SEMModelView(APIView):
             'files': files
         }
         return Response(sem_data)
+
+
+class AFMModelView(APIView):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        afm_model = get_object_or_404(AFMModel, id=kwargs.get('id'))
+        files = [file.file.url for file in afm_model.file.all()]
+        afm_data = {
+            'id': afm_model.id,
+            'method': afm_model.method,
+            'sample': afm_model.sample.id,
+            'created_at': afm_model.created_at.strftime(date_format),
+            'image': afm_model.image.url if afm_model.image else None,
+            'description': afm_model.description,
+            'files': files
+        }
+        return Response(afm_data)
