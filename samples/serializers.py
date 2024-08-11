@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SampleModel, Favorite, UserMachineModel
+from .models import SampleModel, Favorite, UserMachineModel, AFMModel, SEMModel
 
 
 class SampleNameSerializer(serializers.ModelSerializer):
@@ -30,3 +30,13 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['sample_name']
+
+class AFMModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AFMModel
+        fields = '__all__'
+
+class SEMModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SEMModel
+        fields = '__all__'

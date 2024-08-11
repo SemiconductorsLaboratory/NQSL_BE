@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 
 from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer, LayerComposition
 from rest_framework import generics, status
-from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer
+from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
+    AFMModelSerializer, SEMModelSerializer
 import json
 from django.views import View
 from django.shortcuts import render, get_object_or_404, redirect
@@ -231,3 +232,27 @@ class SubstrateView(APIView):
             layers.append(layer_data)
         data['layers'] = layers
         return Response(data)
+
+
+class AFMModelCreateView(generics.CreateAPIView):
+    queryset = AFMModel.objects.all()
+    serializer_class = AFMModelSerializer
+
+
+# Update an existing AFMModel instance
+class AFMModelUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = AFMModel.objects.all()
+    serializer_class = AFMModelSerializer
+    lookup_field = 'id'
+
+
+class SEMModelCreateView(generics.CreateAPIView):
+    queryset = SEMModel.objects.all()
+    serializer_class = SEMModelSerializer
+
+
+# Update an existing AFMModel instance
+class SEMModelUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = SEMModel.objects.all()
+    serializer_class = SEMModelSerializer
+    lookup_field = 'id'
