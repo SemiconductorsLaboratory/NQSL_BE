@@ -84,8 +84,10 @@ class SampleDetailView(APIView):
         substrate = ''
         if sample.substrate is not None:
             substrate = {
+                'id': sample.substrate.id,
                 'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
-                'created_at': sample.date_created.strftime(date_format)
+                'created_at': sample.date_created.strftime(date_format),
+                'description': sample.description
             }
 
         sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
