@@ -77,8 +77,17 @@ class SampleDetailView(APIView):
 
     def get(self, request, *args, **kwargs):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
+        prev_sample = ''
+        if sample.prev_sample is not None:
+            prev_sample = sample.prev_sample.name
 
-        layer_names = Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True)
+        substrate = ''
+        if sample.substrate is not None:
+            substrate = {
+                'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
+                'created_at': sample.date_created.strftime(date_format)
+            }
+
         sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
         afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
         for sem in sem_models:
@@ -89,10 +98,8 @@ class SampleDetailView(APIView):
             afm['created_at'] = created_at.strftime(date_format)
 
         response_data = {
-            'substrate': {
-                'layer': layer_names,
-                'created_at': sample.date_created.strftime(date_format)
-            },
+            'prev_sample': prev_sample,
+            'substrate': substrate,
             'sem': list(sem_models),
             'afm': list(afm_models)
         }
