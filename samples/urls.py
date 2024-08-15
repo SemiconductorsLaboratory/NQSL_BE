@@ -37,5 +37,7 @@ urlpatterns = [
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),
 
     path('user-machines/', UserMachineListView.as_view(), name='user_machine_list'),
+
+
     path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate')
 ]

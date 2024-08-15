@@ -101,7 +101,7 @@ class SEMModel(models.Model):
     id = models.AutoField(primary_key=True)
     method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='SEM')
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     image = models.ImageField(upload_to='SEM_images/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
@@ -109,6 +109,10 @@ class SEMModel(models.Model):
     voltage = models.FloatField(blank=True, null=True)
     current = models.FloatField(blank=True, null=True)
     file = models.ManyToManyField(File, blank=True)
+
+    @property
+    def name(self):
+        return 'sem'
 
     class Meta:
         verbose_name = 'SEM'
@@ -126,10 +130,18 @@ class AFMModel(models.Model):
     id = models.AutoField(primary_key=True)
     method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='AFM')
     sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     image = models.ImageField(upload_to='AFM_images/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     file = models.ManyToManyField(File, blank=True)
+
+    @property
+    def name(self):
+        return 'afm'
+
+    class Meta:
+        verbose_name = 'afm'
+        verbose_name_plural = 'afms'
 
     def __str__(self):
         return f'AFMModel {self.id}'

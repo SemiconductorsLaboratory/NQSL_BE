@@ -77,33 +77,44 @@ class SampleDetailView(APIView):
 
     def get(self, request, *args, **kwargs):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
-        prev_sample = ''
-        if sample.prev_sample is not None:
-            prev_sample = sample.prev_sample.name
+        Models = [SEMModel, AFMModel]
 
-        substrate = ''
-        if sample.substrate is not None:
-            substrate = {
-                'id': sample.substrate.id,
-                'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
-                'created_at': sample.date_created.strftime(date_format),
-                'description': sample.description
-            }
+        sample_name_list = [sample.name]
 
-        sem_models = SEMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
-        afm_models = AFMModel.objects.filter(sample=sample).values('created_at', 'description', 'method', 'id')
-        for sem in sem_models:
-            created_at = sem['created_at']
-            sem['created_at'] = created_at.strftime(date_format)
-        for afm in afm_models:
-            created_at = afm['created_at']
-            afm['created_at'] = created_at.strftime(date_format)
+        while sample.prev_sample is not None:
+            sample_name_list.append(sample.prev_sample.name)
+            sample = get_object_or_404(SampleModel, name=sample.prev_sample.name)
+
+        sample_name_list.reverse()
+        sample = get_object_or_404(SampleModel, name=sample_name_list[0])
+        substrate = {
+            'id': sample.substrate.id,
+            'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
+            'created_at': sample.date_created.strftime(date_format),
+        }
+
+        experiment_list = []
+        for sample_name in sample_name_list:
+            sample = get_object_or_404(SampleModel, name=sample_name)
+            experiment_list0 = []
+            for model in Models:
+                all_experiments = model.objects.filter(sample=sample)
+                for experiment in all_experiments:
+                    dict_experiment = {
+                        'id': experiment.id,
+                        'model': experiment.name,
+                        'methode': experiment.method,
+                        'created_at': experiment.created_at.strftime(date_format )
+
+                    }
+                    experiment_list0.append(dict_experiment)
+            experiment_list0 = sorted(experiment_list0, key=lambda x: x['created_at'])
+            experiment_list.append(experiment_list0)
 
         response_data = {
-            'prev_sample': prev_sample,
+            'sample_list': sample_name_list,
             'substrate': substrate,
-            'sem': list(sem_models),
-            'afm': list(afm_models)
+            'experiment_list': experiment_list
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
