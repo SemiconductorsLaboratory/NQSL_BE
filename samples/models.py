@@ -68,7 +68,7 @@ class SampleModel(models.Model):
     name = models.CharField(unique=True, max_length=100)
     description = models.TextField(blank=True, null=True)
     user = models.ForeignKey(UserMachineModel, on_delete=models.CASCADE)
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    date_created = models.DateTimeField(blank=True, null=True)
     substrate = models.ForeignKey(Substrate, on_delete=models.CASCADE, blank=True, null=True)
     prev_sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE, blank=True, null=True)
 
