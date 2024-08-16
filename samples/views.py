@@ -142,11 +142,15 @@ class SampleDetailView(APIView):
 
         sample_name_list.reverse()
         sample = get_object_or_404(SampleModel, name=sample_name_list[0])
-        substrate = {
-            'id': sample.substrate.id,
-            'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
-            'created_at': sample.date_created.strftime(date_format),
-        }
+        if sample.substrate is not None:
+            substrate = {
+                'sample_name': sample.name,
+                'id': sample.substrate.id,
+                'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
+                'created_at': sample.date_created.strftime(date_format),
+            }
+        else:
+            substrate = ''
 
         experiment_list = []
         for sample_name in sample_name_list:
