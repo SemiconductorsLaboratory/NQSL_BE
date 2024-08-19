@@ -1,4 +1,6 @@
-from django.urls import path, re_path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from .views import (
     SampleModelCreateAPIView,
     SampleDetailView,
@@ -12,8 +14,16 @@ from .views import (
     SEMModelView,
     AFMModelView,
     UserMachineListView,
-    SubstrateView, AFMModelCreateView, AFMModelUpdateView, SEMModelCreateView, SEMModelUpdateView,
+    SubstrateView,
+    AFMModelCreateView,
+    AFMModelUpdateView,
+    SEMModelCreateView,
+    SEMModelUpdateView,
+    ElementViewSet,
 )
+
+router = DefaultRouter()
+router.register(r'elements', ElementViewSet)
 
 urlpatterns = [
     path('', SampleListView.as_view(), name='_detail'),
@@ -39,5 +49,6 @@ urlpatterns = [
     path('user-machines/', UserMachineListView.as_view(), name='user_machine_list'),
 
 
-    path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate')
+    path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate'),
+    path('', include(router.urls)),
 ]

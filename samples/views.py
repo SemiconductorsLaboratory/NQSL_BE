@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime
 
-from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer, LayerComposition
-from rest_framework import generics, status
+from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer, LayerComposition, \
+    Element
+from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
-    AFMModelSerializer, SEMModelSerializer
+    AFMModelSerializer, SEMModelSerializer, ElementSerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -339,3 +340,8 @@ class SEMModelUpdateView(generics.RetrieveUpdateAPIView):
     queryset = SEMModel.objects.all()
     serializer_class = SEMModelSerializer
     lookup_field = 'id'
+
+
+class ElementViewSet(viewsets.ModelViewSet):
+    queryset = Element.objects.all()
+    serializer_class = ElementSerializer

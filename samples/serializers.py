@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import SampleModel, Favorite, UserMachineModel, AFMModel, SEMModel
+from .models import (SampleModel,
+                     Favorite,
+                     UserMachineModel,
+                     AFMModel,
+                     SEMModel,
+                     Element
+                     )
 
 
 class SampleNameSerializer(serializers.ModelSerializer):
@@ -33,6 +39,7 @@ class SampleModelSerializer(serializers.ModelSerializer):
         # Create and return the SampleModel instance
         return super().create(validated_data)
 
+
 class UserModelSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -48,12 +55,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ['sample_name']
 
+
 class AFMModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AFMModel
         fields = '__all__'
 
+
 class SEMModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = SEMModel
+        fields = '__all__'
+
+
+class ElementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Element
         fields = '__all__'
