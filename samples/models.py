@@ -49,7 +49,7 @@ class LayerThickness(models.Model):
     # TODO mask
     Layers = models.ForeignKey(Layer, on_delete=models.CASCADE)
     thickness = models.FloatField(blank=True, null=True)
-    order = models.IntegerField()
+    order = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.Layers.name+' - '+str(self.thickness)

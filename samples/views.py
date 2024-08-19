@@ -19,30 +19,41 @@ def addlayer(data):
     print(data)
     thickness = data['layer_thickness']
     layer_comp = data['layer_comp']
-    layer_serializer = LayerSerializer(data=data.pop('layer_comp'))
+    datalayer = {
+        'name': data['name'],
+        'doped': data['doped'],
+        'doped_percentage': data['doped_percentage']
+    }
+    layer_serializer = LayerSerializer(data=datalayer)
     if layer_serializer.is_valid():
         layer_serializer.save()
     else:
         return Response(layer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     thickness_data = {
-        'thickness': thickness,
+        'thickness': float(thickness),
         'Layers': layer_serializer.data['id']
     }
     layerthickness_serializer = LayerThicknessSerializer(data=thickness_data)
     if layerthickness_serializer.is_valid():
         layerthickness_serializer.save()
+        print(layerthickness_serializer.data)
     else:
+        print(layerthickness_serializer.errors)
         return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    for i, layer in layer_comp:
-        layer['layer'] = layer_serializer.data['id']
-        layercomp_serializer = LayerCompositionSerializer(data=thickness_data)
+    print(layer_comp)
+    for layer in layer_comp:
+        datacomp = {
+            'layer': layer_serializer.data['id'],
+            'element': int(layer['element']),
+            'percentage': str(layer['percentage'])
+        }
+        layercomp_serializer = LayerCompositionSerializer(data=datacomp)
         if layercomp_serializer.is_valid():
             layercomp_serializer.save()
         else:
             return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return layer_serializer.data['id']
+    return layerthickness_serializer.data['id']
 
 
 class SampleModelViewSet(viewsets.ModelViewSet):
