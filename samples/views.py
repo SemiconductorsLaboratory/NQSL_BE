@@ -9,23 +9,41 @@ from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate
 from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
     AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer, LayerCompositionSerializer, \
-    SubstrateModelSerializer, LayerSerializer
+    SubstrateModelSerializer, LayerSerializer, LayerThicknessSerializer
 from django.shortcuts import get_object_or_404
 
 date_format = '%Y-%m-%d, %H:%M'
 
 
 def addlayer(data):
-    thickness = data['thickness']
+    print(data)
+    thickness = data['layer_thickness']
     layer_comp = data['layer_comp']
     layer_serializer = LayerSerializer(data=data.pop('layer_comp'))
-    if not layer_serializer.is_valid():
+    if layer_serializer.is_valid():
+        layer_serializer.save()
+    else:
         return Response(layer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    thickness_data = {
+        'thickness': thickness,
+        'Layers': layer_serializer.data['id']
+    }
+    layerthickness_serializer = LayerThicknessSerializer(data=thickness_data)
+    if layerthickness_serializer.is_valid():
+        layerthickness_serializer.save()
+    else:
+        return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    for i, layer in layer_comp:
+        layer['layer'] = layer_serializer.data['id']
+        layercomp_serializer = LayerCompositionSerializer(data=thickness_data)
+        if layercomp_serializer.is_valid():
+            layercomp_serializer.save()
+        else:
+            return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    return layer_serializer.data['id']
 
-
-    return
 
 class SampleModelViewSet(viewsets.ModelViewSet):
     queryset = SampleModel.objects.all()
@@ -46,7 +64,11 @@ class SampleInitView(APIView):
                 return Response(sample_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         substrate_data = request.data.get("substrate")
-        substrate_data.pop('layers')
+        layer_id = []
+        for layer in substrate_data['layers']:
+            print('ok')
+            layer_id.append(addlayer(layer))
+        substrate_data['layers'] = layer_id
         substrate_serializer = SubstrateModelSerializer(data=substrate_data)
         if not substrate_serializer.is_valid():
             return Response(substrate_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
