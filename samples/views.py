@@ -8,7 +8,7 @@ from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate
     Element
 from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
-    AFMModelSerializer, SEMModelSerializer, ElementSerializer
+    AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer
 from django.shortcuts import get_object_or_404
 
 
@@ -345,3 +345,16 @@ class SEMModelUpdateView(generics.RetrieveUpdateAPIView):
 class ElementViewSet(viewsets.ModelViewSet):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
+
+
+class UserMachineView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            user_machine = UserMachineModel.objects.get(user=user)
+            serializer = UserMachineModelSerializer(user_machine)
+            return Response(serializer.data)
+        except UserMachineModel.DoesNotExist:
+            return Response({"name": ""}, status=200)

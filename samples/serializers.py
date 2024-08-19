@@ -72,3 +72,9 @@ class ElementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Element
         fields = '__all__'
+
+
+class UserMachineModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserMachineModel
+        fields = '__all__'

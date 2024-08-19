@@ -19,7 +19,7 @@ from .views import (
     AFMModelUpdateView,
     SEMModelCreateView,
     SEMModelUpdateView,
-    ElementViewSet,
+    ElementViewSet, UserMachineView,
 )
 
 router = DefaultRouter()
@@ -47,6 +47,7 @@ urlpatterns = [
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),
 
     path('user-machines/', UserMachineListView.as_view(), name='user_machine_list'),
+    path('user-machine/me/', UserMachineView.as_view(), name='user-machine'),
 
 
     path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate'),
