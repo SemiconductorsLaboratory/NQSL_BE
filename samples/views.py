@@ -8,16 +8,60 @@ from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate
     Element
 from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
-    AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer, LayerCompositionSerializer
+    AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer, LayerCompositionSerializer, \
+    SubstrateModelSerializer, LayerSerializer
 from django.shortcuts import get_object_or_404
-
 
 date_format = '%Y-%m-%d, %H:%M'
 
 
+def addlayer(data):
+    thickness = data['thickness']
+    layer_comp = data['layer_comp']
+    layer_serializer = LayerSerializer(data=data.pop('layer_comp'))
+    if not layer_serializer.is_valid():
+        return Response(layer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+    return
+
 class SampleModelViewSet(viewsets.ModelViewSet):
     queryset = SampleModel.objects.all()
     serializer_class = SampleModelSerializer
+
+
+class SampleInitView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        sample_data = request.data.get("sample")
+        if sample_data['prev_sample'] != "":
+            sample_serializer = SampleModelSerializer(data=sample_data)
+            if sample_serializer.is_valid():
+                sample_serializer.save()
+                return Response(sample_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(sample_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        substrate_data = request.data.get("substrate")
+        substrate_data.pop('layers')
+        substrate_serializer = SubstrateModelSerializer(data=substrate_data)
+        if not substrate_serializer.is_valid():
+            return Response(substrate_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        sample_serializer = SampleModelSerializer(data=sample_data)
+        if sample_serializer.is_valid():
+            substrate_serializer.save()
+        else:
+            return Response(sample_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        sample_data['substrate'] = substrate_serializer.data['id']
+        sample_serializer = SampleModelSerializer(data=sample_data)
+        if sample_serializer.is_valid():
+            sample_serializer.save()
+
+        return Response(sample_serializer.data, status=status.HTTP_200_OK)
 
 
 class UserMachineViewSet(viewsets.ModelViewSet):
@@ -66,7 +110,8 @@ class SampleDetailView(APIView):
             substrate = {
                 'sample_name': sample.name,
                 'id': sample.substrate.id,
-                'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name', flat=True),
+                'layer': Layer.objects.filter(layerthickness__substrate__samplemodel=sample).values_list('name',
+                                                                                                         flat=True),
                 'created_at': sample.date_created.strftime(date_format),
             }
         else:
@@ -83,7 +128,7 @@ class SampleDetailView(APIView):
                         'id': experiment.id,
                         'model': experiment.name,
                         'methode': experiment.method,
-                        'created_at': experiment.created_at.strftime(date_format )
+                        'created_at': experiment.created_at.strftime(date_format)
 
                     }
                     experiment_list0.append(dict_experiment)
@@ -192,14 +237,6 @@ class AFMModelView(APIView):
         return Response(afm_data)
 
 
-class UserMachineListView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        user_machines = UserMachineModel.objects.all().values('id', 'name', 'firstName', 'lastName', 'user_id')
-        user_machines_list = list(user_machines)
-        return Response(user_machines_list)
-
-
 class SubstrateView(APIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'name'
@@ -208,9 +245,9 @@ class SubstrateView(APIView):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
         substrate = Substrate.objects.get(id=sample.substrate_id)
         data = {
-        'id': substrate.id,
-        'Company' : substrate.Company,
-        'date': substrate.date_created,
+            'id': substrate.id,
+            'Company': substrate.Company,
+            'date': substrate.date_created,
         }
         layers = []
         for layer in substrate.Layers.all():

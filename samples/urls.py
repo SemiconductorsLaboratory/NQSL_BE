@@ -9,7 +9,6 @@ from .views import (
     SampleDescriptionView,
     SEMModelView,
     AFMModelView,
-    UserMachineListView,
     SubstrateView,
     AFMModelCreateView,
     AFMModelUpdateView,
@@ -18,7 +17,9 @@ from .views import (
     ElementViewSet,
     UserMachineMeView,
     LayerCompositionViewSet,
-    SampleModelViewSet, UserMachineViewSet,
+    SampleModelViewSet,
+    UserMachineViewSet,
+    SampleInitView,
 )
 
 router = DefaultRouter()
@@ -29,7 +30,7 @@ router.register(r'user-machine', UserMachineViewSet)
 
 
 urlpatterns = [
-
+    path('init/', SampleInitView.as_view(), name='init'),
     path('description/<str:name>/', SampleDescriptionView.as_view(), name='sample_description'),
     path('detail/<str:name>/', SampleDetailView.as_view(), name='sample_detail'),
 

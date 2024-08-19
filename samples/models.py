@@ -57,9 +57,9 @@ class LayerThickness(models.Model):
 
 class Substrate(models.Model):
     id = models.AutoField(primary_key=True)
-    Company = models.CharField(max_length=100, unique=True)
+    Company = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    Layers = models.ManyToManyField(LayerThickness)
+    Layers = models.ManyToManyField(LayerThickness, blank=True, null=True)
 
 
 class SampleModel(models.Model):
