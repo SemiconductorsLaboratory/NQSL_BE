@@ -2,15 +2,11 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    SampleModelCreateAPIView,
     SampleDetailView,
-    SampleDeleteView,
-    SampleListView,
     FavoriteListView,
     FavoriteCreateView,
     FavoriteDeleteView,
     SampleDescriptionView,
-    UserListView,
     SEMModelView,
     AFMModelView,
     UserMachineListView,
@@ -19,17 +15,20 @@ from .views import (
     AFMModelUpdateView,
     SEMModelCreateView,
     SEMModelUpdateView,
-    ElementViewSet, UserMachineView,
+    ElementViewSet,
+    UserMachineMeView,
+    LayerCompositionViewSet,
+    SampleModelViewSet, UserMachineViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'elements', ElementViewSet)
+router.register(r'layercomp', LayerCompositionViewSet)
+router.register(r'', SampleModelViewSet)
+router.register(r'user-machine', UserMachineViewSet)
+
 
 urlpatterns = [
-    path('', SampleListView.as_view(), name='_detail'),
-    path('user/', UserListView.as_view(), name='_detail'),
-    path('add/', SampleModelCreateAPIView.as_view(), name='samplemodel-create'),
-    path('remove/', SampleDeleteView.as_view(), name='samplemodel-create'),
 
     path('description/<str:name>/', SampleDescriptionView.as_view(), name='sample_description'),
     path('detail/<str:name>/', SampleDetailView.as_view(), name='sample_detail'),
@@ -46,9 +45,7 @@ urlpatterns = [
     path('favorites/add/', FavoriteCreateView.as_view(), name='favorite-add'),
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),
 
-    path('user-machines/', UserMachineListView.as_view(), name='user_machine_list'),
-    path('user-machine/me/', UserMachineView.as_view(), name='user-machine'),
-
+    path('user-machine/me/', UserMachineMeView.as_view(), name='user-machine'),
 
     path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate'),
     path('', include(router.urls)),

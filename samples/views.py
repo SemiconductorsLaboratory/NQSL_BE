@@ -8,101 +8,21 @@ from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate
     Element
 from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
-    AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer
+    AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer, LayerCompositionSerializer
 from django.shortcuts import get_object_or_404
 
 
 date_format = '%Y-%m-%d, %H:%M'
 
 
-class SampleModelCreateAPIView(generics.CreateAPIView):
+class SampleModelViewSet(viewsets.ModelViewSet):
     queryset = SampleModel.objects.all()
     serializer_class = SampleModelSerializer
-#
-# class SampleModelCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def post(self, request, *args, **kwargs):
-#         name = request.data.get('name')
-#         description = request.data.get('description')
-#         user = request.data.get('user')
-#         date = request.data.get('date')
-#         substrate = request.data.get('substrate')
-#         prev_sample = request.data.get('prev_sample')
-#
-#         if not name:
-#             return Response({"error": "Name is required"}, status=status.HTTP_400_BAD_REQUEST)
-#         if not date:
-#             return Response({"error": "Name is required"}, status=status.HTTP_400_BAD_REQUEST)
-#         if substrate == '' and prev_sample == '':
-#             return Response({"error": "It need one previous sample or one substrate"}, status=status.HTTP_400_BAD_REQUEST)
-#
-#         try:
-#             if prev_sample != '':
-#                 prev_sample = SampleModel.objects.get(name=prev_sample)
-#                 sample = SampleModel.objects.create(
-#                     name=name,
-#                     description=description,
-#                     user=UserMachineModel.objects.get(name=user),
-#                     date_created=datetime(date['Year'], date['Month'], date['Day'], date['Hour'], date['Minute'],
-#                                           date['Second']),
-#                     prev_sample=prev_sample
-#                 )
-#             else:
-#                 substrate = Substrate.objects.create(
-#
-#                 )
-#                 sample = SampleModel.objects.create(
-#                     name=name,
-#                     description=description,
-#                     user=request.user.usermachinemodel,  # Assuming you have a UserMachineModel linked to the User model
-#                     date_created=datetime(date['Year'], date['Month'], date['Day'], date['Hour'], date['Minute'], date['Second']),
-#                     substrate=substrate,
-#                     prev_sample=prev_sample
-#                 )
-#
-#             return Response({
-#                 "id": sample.id,
-#                 "name": sample.name,
-#                 "description": sample.description,
-#                 "user": sample.user.id,
-#                 "date_created": sample.date_created,
-#                 "substrate": sample.substrate.id if sample.substrate else None,
-#                 "prev_sample": sample.prev_sample.id if sample.prev_sample else None
-#             }, status=status.HTTP_201_CREATED)
-#
-#         except SampleModel.DoesNotExist:
-#             return Response({"error": "Invalid prev_sample"}, status=status.HTTP_400_BAD_REQUEST)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class SampleDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        sample_name = request.data.get('name')
-        if not sample_name:
-            return Response({"error": "Sample name is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            sample = SampleModel.objects.get(name=sample_name)
-            sample.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except SampleModel.DoesNotExist:
-            return Response({"error": "Sample not found."}, status=status.HTTP_404_NOT_FOUND)
-
-
-class SampleListView(generics.ListAPIView):
-    queryset = SampleModel.objects.all()
-    serializer_class = SampleNameSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class UserListView(generics.ListAPIView):
+class UserMachineViewSet(viewsets.ModelViewSet):
     queryset = UserMachineModel.objects.all()
-    serializer_class = UserModelSerializer
-    permission_classes = [IsAuthenticated]
+    serializer_class = UserMachineModelSerializer
 
 
 class SampleDescriptionView(APIView):
@@ -119,8 +39,7 @@ class SampleDescriptionView(APIView):
         response_data = {
             'substrate': layer_names,
             'date': sample.date_created.strftime(date_format),
-            'user': sample.user.name,
-            'prev_sample': prev_sample,
+            'user': sample.user_machine.name,
             'description': sample.description
         }
 
@@ -347,7 +266,12 @@ class ElementViewSet(viewsets.ModelViewSet):
     serializer_class = ElementSerializer
 
 
-class UserMachineView(APIView):
+class LayerCompositionViewSet(viewsets.ModelViewSet):
+    queryset = LayerComposition.objects.all()
+    serializer_class = LayerCompositionSerializer
+
+
+class UserMachineMeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
