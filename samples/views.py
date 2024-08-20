@@ -16,7 +16,6 @@ date_format = '%Y-%m-%d, %H:%M'
 
 
 def addlayer(data):
-    print(data)
     thickness = data['layer_thickness']
     layer_comp = data['layer_comp']
     datalayer = {
@@ -28,7 +27,7 @@ def addlayer(data):
     if layer_serializer.is_valid():
         layer_serializer.save()
     else:
-        return Response(layer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return 'error', layer_serializer.errors
     thickness_data = {
         'thickness': float(thickness),
         'Layers': layer_serializer.data['id']
@@ -36,11 +35,10 @@ def addlayer(data):
     layerthickness_serializer = LayerThicknessSerializer(data=thickness_data)
     if layerthickness_serializer.is_valid():
         layerthickness_serializer.save()
-        print(layerthickness_serializer.data)
     else:
-        print(layerthickness_serializer.errors)
-        return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    print(layer_comp)
+
+        return 'error', layer_serializer.errors
+
     for layer in layer_comp:
         datacomp = {
             'layer': layer_serializer.data['id'],
@@ -53,7 +51,7 @@ def addlayer(data):
         else:
             return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return layerthickness_serializer.data['id']
+    return 'validate', layerthickness_serializer.data['id']
 
 
 class SampleModelViewSet(viewsets.ModelViewSet):
@@ -77,8 +75,11 @@ class SampleInitView(APIView):
         substrate_data = request.data.get("substrate")
         layer_id = []
         for layer in substrate_data['layers']:
-            print('ok')
-            layer_id.append(addlayer(layer))
+            status_layer, data_layer = addlayer(layer)
+            if status_layer == 'error':
+                return Response(data_layer, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                layer_id.append(data_layer)
         substrate_data['layers'] = layer_id
         substrate_serializer = SubstrateModelSerializer(data=substrate_data)
         if not substrate_serializer.is_valid():
@@ -305,6 +306,16 @@ class SubstrateView(APIView):
             layers.append(layer_data)
         data['layers'] = layers
         return Response(data)
+
+
+class AFMModelViewSet(viewsets.ModelViewSet):
+    queryset = AFMModel.objects.all()
+    serializer_class = AFMModelSerializer
+
+
+class SEMModelViewSet(viewsets.ModelViewSet):
+    queryset = SEMModel.objects.all()
+    serializer_class = SEMModelSerializer
 
 
 class AFMModelCreateView(generics.CreateAPIView):

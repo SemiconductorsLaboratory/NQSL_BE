@@ -87,7 +87,7 @@ class Favorite(models.Model):
 class File(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, blank=True, null=True)
-    file = models.FileField(upload_to='File/')
+    file = models.FileField(upload_to='file/')
     created_at = models.DateTimeField(auto_now_add=True)
 
 
