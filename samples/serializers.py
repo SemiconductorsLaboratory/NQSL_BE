@@ -4,7 +4,7 @@ from .models import (SampleModel,
                      UserMachineModel,
                      AFMModel,
                      SEMModel,
-                     Element, LayerComposition, Substrate, Layer, LayerThickness
+                     Element, LayerComposition, Substrate, Layer, LayerThickness, File
                      )
 
 
@@ -82,4 +82,10 @@ class LayerThicknessSerializer(serializers.ModelSerializer):
 class SubstrateModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Substrate
+        fields = '__all__'
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
         fields = '__all__'

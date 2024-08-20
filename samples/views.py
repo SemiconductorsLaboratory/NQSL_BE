@@ -5,11 +5,11 @@ from rest_framework.views import APIView
 from datetime import datetime
 
 from .models import SampleModel, SEMModel, Favorite, UserMachineModel, Substrate, AFMModel, Layer, LayerComposition, \
-    Element
+    Element, File
 from rest_framework import generics, status, viewsets
 from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSerializer, UserModelSerializer, \
     AFMModelSerializer, SEMModelSerializer, ElementSerializer, UserMachineModelSerializer, LayerCompositionSerializer, \
-    SubstrateModelSerializer, LayerSerializer, LayerThicknessSerializer
+    SubstrateModelSerializer, LayerSerializer, LayerThicknessSerializer, FileSerializer
 from django.shortcuts import get_object_or_404
 
 date_format = '%Y-%m-%d, %H:%M'
@@ -363,3 +363,8 @@ class UserMachineMeView(APIView):
             return Response(serializer.data)
         except UserMachineModel.DoesNotExist:
             return Response({"name": ""}, status=200)
+
+
+class FileViewSet(viewsets.ModelViewSet):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer

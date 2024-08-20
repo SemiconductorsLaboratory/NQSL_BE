@@ -21,16 +21,17 @@ from .views import (
     UserMachineViewSet,
     SampleInitView,
     AFMModelViewSet,
-    SEMModelViewSet
+    SEMModelViewSet, FileViewSet
 )
 
 router = DefaultRouter()
 router.register(r'elements', ElementViewSet)
 router.register(r'layercomp', LayerCompositionViewSet)
-router.register(r'', SampleModelViewSet)
+router.register(r'sample', SampleModelViewSet)
 router.register(r'user-machine', UserMachineViewSet)
 router.register(r'afm', AFMModelViewSet)
 router.register(r'sem', SEMModelViewSet)
+router.register(r'files', FileViewSet)
 
 
 urlpatterns = [
