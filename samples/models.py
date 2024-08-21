@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from users.models import UserAccount
@@ -58,8 +60,8 @@ class LayerThickness(models.Model):
 class Substrate(models.Model):
     id = models.AutoField(primary_key=True)
     Company = models.CharField(max_length=100)
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    Layers = models.ManyToManyField(LayerThickness, blank=True, null=True)
+    date_created = models.DateTimeField(default=datetime.now)
+    Layers = models.ManyToManyField(LayerThickness)
 
 
 class SampleModel(models.Model):

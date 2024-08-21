@@ -49,7 +49,7 @@ def addlayer(data):
         if layercomp_serializer.is_valid():
             layercomp_serializer.save()
         else:
-            return Response(layerthickness_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return 'error', layerthickness_serializer.errors
 
     return 'validate', layerthickness_serializer.data['id']
 
@@ -80,7 +80,8 @@ class SampleInitView(APIView):
                 return Response(data_layer, status=status.HTTP_400_BAD_REQUEST)
             else:
                 layer_id.append(data_layer)
-        substrate_data['layers'] = layer_id
+        substrate_data.pop('layers')
+        substrate_data['Layers'] = layer_id
         substrate_serializer = SubstrateModelSerializer(data=substrate_data)
         if not substrate_serializer.is_valid():
             return Response(substrate_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -95,7 +96,7 @@ class SampleInitView(APIView):
         if sample_serializer.is_valid():
             sample_serializer.save()
 
-        return Response(sample_serializer.data, status=status.HTTP_200_OK)
+        return Response([sample_serializer.data, substrate_serializer.data], status=status.HTTP_200_OK)
 
 
 class UserMachineViewSet(viewsets.ModelViewSet):
