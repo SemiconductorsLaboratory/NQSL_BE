@@ -131,6 +131,7 @@ class SampleDetailView(APIView):
 
     def get(self, request, *args, **kwargs):
         sample = get_object_or_404(SampleModel, name=kwargs.get('name'))
+        sample_id = sample.id
         Models = [SEMModel, AFMModel]
 
         sample_name_list = [sample.name]
@@ -174,6 +175,7 @@ class SampleDetailView(APIView):
         next_sample_list = list(samples.values_list('name', flat=True))
 
         response_data = {
+            'sample_id': sample_id,
             'sample_list': sample_name_list,
             'substrate': substrate,
             'experiment_list': experiment_list,
