@@ -10,7 +10,7 @@ class UserMachineModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
     firstName = models.CharField(max_length=255, blank=True, null=True)
     lastName = models.CharField(max_length=255, blank=True, null=True)
-    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(UserAccount, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return f"{self.firstName or ''} {self.lastName or ''}".strip()
@@ -29,7 +29,7 @@ class Element(models.Model):
 class Layer(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    doped = models.ForeignKey(Element, on_delete=models.CASCADE, blank=True, null=True)
+    doped = models.ForeignKey(Element, on_delete=models.PROTECT, blank=True, null=True)
     doped_percentage = models.FloatField(blank=True, null=True)
 
     def __str__(self):
@@ -39,7 +39,7 @@ class Layer(models.Model):
 class LayerComposition(models.Model):
     id = models.AutoField(primary_key=True)
     layer = models.ForeignKey(Layer, on_delete=models.CASCADE)
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
+    element = models.ForeignKey(Element, on_delete=models.PROTECT)
     percentage = models.FloatField()
 
     def __str__(self):
@@ -49,7 +49,7 @@ class LayerComposition(models.Model):
 class LayerThickness(models.Model):
     id = models.AutoField(primary_key=True)
     # TODO mask
-    Layers = models.ForeignKey(Layer, on_delete=models.CASCADE)
+    Layers = models.ForeignKey(Layer, on_delete=models.SET_NULL, blank=True, null=True)
     thickness = models.FloatField(blank=True, null=True)
     order = models.IntegerField(blank=True, null=True)
 
@@ -68,10 +68,10 @@ class SampleModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, max_length=100)
     description = models.TextField(blank=True, null=True)
-    user_machine = models.ForeignKey(UserMachineModel, on_delete=models.CASCADE)
-    date_created = models.DateTimeField(blank=True, null=True)
-    substrate = models.ForeignKey(Substrate, on_delete=models.CASCADE, blank=True, null=True)
-    prev_sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE, blank=True, null=True)
+    user_machine = models.ForeignKey(UserMachineModel, on_delete=models.PROTECT)
+    date_created = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    substrate = models.ForeignKey(Substrate, on_delete=models.PROTECT, blank=True, null=True)
+    prev_sample = models.ForeignKey('SampleModel', on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -88,7 +88,7 @@ class Favorite(models.Model):
 
 class File(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(UserAccount, on_delete=models.SET_NULL, blank=True, null=True)
     file = models.FileField(upload_to='file/')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -101,15 +101,15 @@ class SEMModel(models.Model):
 
     id = models.AutoField(primary_key=True)
     method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='SEM')
-    sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
-    created_at = models.DateTimeField()
+    sample = models.ForeignKey('SampleModel', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=datetime.now, blank=True, null=True)
     image = models.ImageField(upload_to='SEM_images/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     magnification = models.BigIntegerField(blank=True, null=True)
     voltage = models.FloatField(blank=True, null=True)
     current = models.FloatField(blank=True, null=True)
-    file = models.ManyToManyField(File, blank=True)
+    file = models.ManyToManyField(File, blank=True, null=True)
 
     @property
     def name(self):
@@ -130,11 +130,11 @@ class AFMModel(models.Model):
     ]
     id = models.AutoField(primary_key=True)
     method = models.CharField(max_length=255, choices=STATUS_CHOICES, default='AFM')
-    sample = models.ForeignKey('SampleModel', on_delete=models.CASCADE)
-    created_at = models.DateTimeField()
+    sample = models.ForeignKey('SampleModel', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=datetime.now, blank=True, null=True)
     image = models.ImageField(upload_to='AFM_images/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    file = models.ManyToManyField(File, blank=True)
+    file = models.ManyToManyField(File, blank=True, null=True)
 
     @property
     def name(self):
