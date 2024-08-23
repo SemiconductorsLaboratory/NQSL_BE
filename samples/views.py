@@ -54,6 +54,23 @@ def addlayer(data):
     return 'validate', layerthickness_serializer.data['id']
 
 
+class AddLayerSubstrateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        substrate_id = data['substrate_id']
+        substrate = Substrate.objects.get(id=substrate_id)
+        data.pop('substrate_id')
+        status_layer, data_layer = addlayer(data)
+        if status_layer == 'error':
+            return Response(data_layer, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            substrate.Layers.add(data_layer)
+            substrate.save()
+            return Response({'response': 'ok'}, status=status.HTTP_200_OK)
+
+
 class SampleModelViewSet(viewsets.ModelViewSet):
     queryset = SampleModel.objects.all()
     serializer_class = SampleModelSerializer
@@ -97,6 +114,11 @@ class SampleInitView(APIView):
             sample_serializer.save()
 
         return Response([sample_serializer.data, substrate_serializer.data], status=status.HTTP_200_OK)
+
+
+class SubstrateViewSet(viewsets.ModelViewSet):
+    queryset = Substrate.objects.all()
+    serializer_class = SubstrateModelSerializer
 
 
 class UserMachineViewSet(viewsets.ModelViewSet):

@@ -21,7 +21,7 @@ from .views import (
     UserMachineViewSet,
     SampleInitView,
     AFMModelViewSet,
-    SEMModelViewSet, FileViewSet
+    SEMModelViewSet, FileViewSet, SubstrateViewSet, AddLayerSubstrateView
 )
 
 router = DefaultRouter()
@@ -32,6 +32,7 @@ router.register(r'user-machine', UserMachineViewSet)
 router.register(r'afm', AFMModelViewSet)
 router.register(r'sem', SEMModelViewSet)
 router.register(r'files', FileViewSet)
+router.register(r'substrate', SubstrateViewSet)
 
 
 urlpatterns = [
@@ -53,6 +54,7 @@ urlpatterns = [
 
     path('user-machine/me/', UserMachineMeView.as_view(), name='user-machine'),
 
-    path('substrate/<str:name>/', SubstrateView.as_view(), name='substrate'),
+    path('substrate/detail/<str:name>/', SubstrateView.as_view(), name='substrate'),
+    path('substrate/addlayer/', AddLayerSubstrateView.as_view(), name='add-layer'),
     path('', include(router.urls)),
 ]
