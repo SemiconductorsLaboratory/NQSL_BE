@@ -21,7 +21,7 @@ from .views import (
     UserMachineViewSet,
     SampleInitView,
     AFMModelViewSet,
-    SEMModelViewSet, FileViewSet, SubstrateViewSet, AddLayerSubstrateView
+    SEMModelViewSet, FileViewSet, SubstrateViewSet, AddLayerSubstrateView, MethodList
 )
 
 router = DefaultRouter()
@@ -53,6 +53,7 @@ urlpatterns = [
     path('favorites/remove/', FavoriteDeleteView.as_view(), name='favorite-remove'),
 
     path('user-machine/me/', UserMachineMeView.as_view(), name='user-machine'),
+    path('methodlist/', MethodList.as_view(), name='methode-list'),
 
     path('substrate/detail/<str:name>/', SubstrateView.as_view(), name='substrate'),
     path('substrate/addlayer/', AddLayerSubstrateView.as_view(), name='add-layer'),

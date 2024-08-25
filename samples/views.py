@@ -393,3 +393,12 @@ class UserMachineMeView(APIView):
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
+
+
+class MethodList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        method_list = ['sem', 'afm']
+
+        return Response(method_list, status=200)
