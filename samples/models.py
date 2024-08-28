@@ -21,6 +21,8 @@ class Element(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     Symbol = models.CharField(max_length=255, blank=True, null=True)
     atomic_number = models.IntegerField()
+    group = models.IntegerField(blank=True, null=True)
+    period = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.Symbol
