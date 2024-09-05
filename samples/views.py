@@ -13,6 +13,7 @@ from .serializers import SampleModelSerializer, FavoriteSerializer, SampleNameSe
 from django.shortcuts import get_object_or_404
 
 date_format = '%Y-%m-%d, %H:%M'
+date_format1 = '%Y-%m-%d'
 
 
 def addlayer(data):
@@ -139,7 +140,7 @@ class SampleDescriptionView(APIView):
             prev_sample = sample.prev_sample.name
         response_data = {
             'substrate': layer_names,
-            'date': sample.date_created.strftime(date_format),
+            'date': sample.date_created.strftime(date_format1),
             'user': sample.user_machine.name,
             'description': sample.description
         }
@@ -399,6 +400,6 @@ class MethodList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        method_list = ['sem', 'afm']
+        method_list = ['sem', 'afm', 'apt']
 
         return Response(method_list, status=200)

@@ -1,4 +1,5 @@
 # views.py
+from rest_framework import viewsets
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -6,6 +7,15 @@ from django.shortcuts import get_object_or_404
 from .models import Meeting
 from samples.models import UserMachineModel
 import json
+
+from .serializer import MeetingSerializer
+
+
+class MeetingViewSet(viewsets.ModelViewSet):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+
+
 
 @require_http_methods(["GET"])
 def meeting_list(request):
