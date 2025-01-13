@@ -63,7 +63,7 @@ class Substrate(models.Model):
     id = models.AutoField(primary_key=True)
     Company = models.CharField(max_length=100)
     date_created = models.DateTimeField(default=datetime.now)
-    Layers = models.ManyToManyField(LayerThickness, blank=True, null=True)
+    Layers = models.ManyToManyField(LayerThickness, blank=True)
 
 
 class SampleModel(models.Model):
@@ -111,7 +111,7 @@ class SEMModel(models.Model):
     magnification = models.BigIntegerField(blank=True, null=True)
     voltage = models.FloatField(blank=True, null=True)
     current = models.FloatField(blank=True, null=True)
-    file = models.ManyToManyField(File, blank=True, null=True)
+    file = models.ManyToManyField(File, blank=True)
 
     @property
     def name(self):
@@ -136,7 +136,7 @@ class AFMModel(models.Model):
     created_at = models.DateTimeField(default=datetime.now, blank=True, null=True)
     image = models.ImageField(upload_to='AFM_images/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    file = models.ManyToManyField(File, blank=True, null=True)
+    file = models.ManyToManyField(File, blank=True)
 
     @property
     def name(self):
