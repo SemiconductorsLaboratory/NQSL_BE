@@ -17,42 +17,22 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 import dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 dotenv_file = BASE_DIR / '.env.local'
 
 if path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
 DEVELOPMENT_MODE = getenv('DEVELOPMENT_MODE', 'False') == 'True'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+DEBUG = getenv('DEBUG', 'False') == 'True'
 SECRET_KEY = getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 
-# SECURE_SSL_REDIRECT = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
+# Security settings: Only enable in production (when DEVELOPMENT_MODE is False)
+# SECURE_SSL_REDIRECT = not DEVELOPMENT_MODE  # Redirect HTTP to HTTPS only in production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if not DEVELOPMENT_MODE else None
+CSRF_COOKIE_SECURE = not DEVELOPMENT_MODE  # CSRF cookie secure only in production
+SESSION_COOKIE_SECURE = not DEVELOPMENT_MODE  # Session cookies secure only in production
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = getenv('DEBUG', 'False') == 'True'
-
-ALLOWED_HOSTS = [
-    "*",
-    "127.0.0.1",
-    "localhost",
-    "132.207.X.X",
-]
-
-# ALLOWED_HOSTS = getenv('DJANGO_ALLOWED_HOSTS',
-#                        '127.0.0.1,localhost,132.207.45.244',).split(',')
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -104,60 +84,30 @@ TEMPLATES = [
 WSGI_APPLICATION = 'full_auth.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DATABASES = {
+if DEVELOPMENT_MODE:
+    # Use SQLite for development
+    DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'API_data',
-            'USER': 'Django_Server',
-            'PASSWORD': 'Django_PW',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'ENGINE': getenv('DB_ENGINE_SQLITE', 'django.db.backends.sqlite3'),
+            'NAME': getenv('DB_NAME_SQLITE', path.join(path.dirname(__file__), 'db.sqlite3')),
         }
     }
-
-#
-# if DEVELOPMENT_MODE is True:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         },
-#         'second': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'NQSL_DB',
-#             'USER': 'DB_user',
-#             'PASSWORD': 'DB_password',
-#             'HOST': 'localhost',
-#             'PORT': '5432',
-#         }
-#     }
-#    # DATABASES = {}
-# elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
-#     if getenv('DATABASE_URL', None) is None:
-#         raise Exception('DATABASE_URL environment variable not defined')
-#     DATABASES = {
-#         'default': dj_database_url.parse(getenv('DATABASE_URL')),
-#     }
-
-# Email settings
-
-# EMAIL_BACKEND = 'django_ses.SESBackend'
-# DEFAULT_FROM_EMAIL = getenv('AWS_SES_FROM_EMAIL')
-#
-# AWS_SES_ACCESS_KEY_ID = getenv('AWS_SES_ACCESS_KEY_ID')
-# AWS_SES_SECRET_ACCESS_KEY = getenv('AWS_SES_SECRET_ACCESS_KEY')
-# AWS_SES_REGION_NAME = getenv('AWS_SES_REGION_NAME')
-# AWS_SES_REGION_ENDPOINT = f'email.{AWS_SES_REGION_NAME}.amazonaws.com'
-# AWS_SES_FROM_EMAIL = getenv('AWS_SES_FROM_EMAIL')
-# USE_SES_V2 = True
+else:
+    # Use PostgreSQL for production
+    DATABASES = {
+        'default': {
+            'ENGINE': getenv('DB_ENGINE_POSTGRES', 'django.db.backends.postgresql'),
+            'NAME': getenv('DB_NAME_POSTGRES', 'API_data'),
+            'USER': getenv('DB_USER_POSTGRES', 'Django_Server'),
+            'PASSWORD': getenv('DB_PASSWORD_POSTGRES', 'Django_PW'),
+            'HOST': getenv('DB_HOST_POSTGRES', 'localhost'),
+            'PORT': getenv('DB_PORT_POSTGRES', '5432'),
+        }
+    }
 
 DOMAIN = getenv('DOMAIN')
 SITE_NAME = 'NQSL'
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -175,9 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -187,36 +134,19 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+if DEVELOPMENT_MODE:
+    # Development settings
+    STATIC_URL = getenv('STATIC_URL_DEV', '/static/')
+    STATIC_ROOT = path.join(BASE_DIR, getenv('STATIC_ROOT_DEV', 'static'))
+else:
+    # Production settings
+    STATIC_URL = getenv('STATIC_URL_PROD', 'https://132.207.45.244/static/')
+    STATIC_ROOT = getenv('STATIC_ROOT_PROD', 'C:/Users/Administrator/static/')
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-#
-# if DEVELOPMENT_MODE is True:
-#     STATIC_URL = 'static/'
-#     STATIC_ROOT = BASE_DIR / 'static'
-#     MEDIA_URL = 'media/'
-#     MEDIA_ROOT = BASE_DIR / 'media'
-# else:
-#     AWS_S3_ACCESS_KEY_ID = getenv('AWS_S3_ACCESS_KEY_ID')
-#     AWS_S3_SECRET_ACCESS_KEY = getenv('AWS_S3_SECRET_ACCESS_KEY')
-#     AWS_STORAGE_BUCKET_NAME = getenv('AWS_STORAGE_BUCKET_NAME')
-#     AWS_S3_REGION_NAME = getenv('AWS_S3_REGION_NAME')
-#     AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com'
-#     AWS_S3_OBJECT_PARAMETERS = {
-#         'CacheControl': 'max-age=86400'
-#     }
-#     AWS_DEFAULT_ACL = 'public-read'
-#     AWS_LOCATION = 'static'
-#     AWS_MEDIA_LOCATION = 'media'
-#     AWS_S3_CUSTOM_DOMAIN = getenv('AWS_S3_CUSTOM_DOMAIN')
-#     STORAGES = {
-#         'default': {'BACKEND': 'custom_storages.CustomS3Boto3Storage'},
-#         'staticfiles': {'BACKEND': 'storages.backends.s3boto3.S3StaticStorage'}
-#     }
+# Media settings (same for both environments)
+MEDIA_URL = getenv('MEDIA_URL', '/media/')
+MEDIA_ROOT = path.join(BASE_DIR, getenv('MEDIA_ROOT', 'media'))
+
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.google.GoogleOAuth2',
@@ -249,45 +179,21 @@ AUTH_COOKIE_SECURE = getenv('AUTH_COOKIE_SECURE', 'True') == 'True'
 AUTH_COOKIE_HTTP_ONLY = True
 AUTH_COOKIE_PATH = '/'
 AUTH_COOKIE_SAMESITE = 'None'
-#
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = getenv('GOOGLE_AUTH_KEY')
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = getenv('GOOGLE_AUTH_SECRET_KEY')
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-#     'https://www.googleapis.com/auth/userinfo.email',
-#     'https://www.googleapis.com/auth/userinfo.profile',
-#     'openid'
-# ]
-# SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
-#
-# SOCIAL_AUTH_FACEBOOK_KEY = getenv('FACEBOOK_AUTH_KEY')
-# SOCIAL_AUTH_FACEBOOK_SECRET = getenv('FACEBOOK_AUTH_SECRET_KEY')
-# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-# SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-#     'fields': 'email, first_name, last_name'
-# }
 
-# CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "http://132.207.45.244:3000",
-#     "http://localhost:3000",
-#     "http://localhost",
-#     "https://localhost"
-# ]
+ALLOWED_HOSTS = getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,132.207.X.X").split(",")
+
+# CORS allowed origin regex (allows 132.207.X.X and localhost with or without ports)
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://132\.207\.\d+\.\d+(:\d+)?$",
-    r"^https://132\.207\.\d+\.\d+(:\d+)?$",# Autorise toutes les IPs 132.207.X.X avec ou sans port
-    r"^http://localhost(:\d+)?$",           # Autorise localhost avec ou sans port
-    r"^https://localhost(:\d+)?$",          # Autorise localhost en HTTPS avec ou sans port
+    r"^https?://132\.207\.\d+\.\d+(:\d+)?$",  # Allows 132.207.X.X with HTTP/HTTPS and optional port
+    r"^https?://localhost(:\d+)?$",  # Allows localhost with HTTP/HTTPS and optional port
 ]
 
-# CORS_ALLOWED_ORIGINS = getenv(
-#     'CORS_ALLOWED_ORIGINS',
-#     'http://132.207.45.244:3000,http://localhost:3000,http://127.0.0.1:3000'
-# ).split(',')
-CORS_ALLOW_CREDENTIALS = True
+# CSRF trusted origins (explicitly define trusted domains)
+CSRF_TRUSTED_ORIGINS = [
+    "https://132.207.45.244",  # Your server's IP
+]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+CORS_ALLOW_CREDENTIALS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

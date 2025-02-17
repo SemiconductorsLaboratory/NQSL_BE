@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -47,6 +49,10 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+
+    # Ajoutez explicitement les champs manquants
+    date_joined = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(auto_now=True)
 
     objects = UserAccountManager()
 
