@@ -175,6 +175,7 @@ cython_debug/
 
 .vscode
 .DS_Store
+.env.local
 /samples/migrations/
 /dashboard/migrations/
 /users/migrations/
