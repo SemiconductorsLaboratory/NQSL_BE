@@ -1,10 +1,15 @@
 # views.py
+from django.conf import settings
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404
-from .models import Meeting
+from rest_framework.views import APIView
+
+from .models import Meeting, Project, Machine
+from .serializer import ProjectSerializer, MachineSerializer
 from samples.models import UserMachineModel
 import json
 
@@ -71,3 +76,21 @@ def meeting_update(request, pk):
         'location': meeting.location,
         'participants': list(meeting.participants.values('id', 'username', 'email'))
     })
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+
+class MachineViewSet(viewsets.ModelViewSet):
+    queryset = Machine.objects.all()
+    serializer_class = MachineSerializer
+
+
+class VersionAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"version": settings.VERSION})
+

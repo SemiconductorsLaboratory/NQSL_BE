@@ -27,6 +27,14 @@ DEVELOPMENT_MODE = getenv('DEVELOPMENT_MODE', 'False') == 'True'
 DEBUG = getenv('DEBUG', 'False') == 'True'
 SECRET_KEY = getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 
+
+def get_version():
+    with open(path.join(BASE_DIR, "VERSION")) as f:
+        return f.read().strip()
+
+
+VERSION = get_version()
+
 # Security settings: Only enable in production (when DEVELOPMENT_MODE is False)
 # SECURE_SSL_REDIRECT = not DEVELOPMENT_MODE  # Redirect HTTP to HTTPS only in production
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if not DEVELOPMENT_MODE else None
