@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import (Meeting,
-                     Project)
+                     Project,
+                     Machine)
 
 
 class MeetingSerializer(serializers.ModelSerializer):
@@ -12,4 +13,10 @@ class MeetingSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
+        fields = '__all__'
+
+
+class MachineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Machine
         fields = '__all__'
