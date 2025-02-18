@@ -400,6 +400,6 @@ class MethodList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        method_list = ['sem', 'afm', 'apt']
+        method_list = ['sem', 'afm', 'apt', 'tem', 'XRD', 'CVD', 'MBE', 'Evaporation', 'SpinCoat', 'annealing']
 
         return Response(method_list, status=200)
