@@ -15,3 +15,13 @@ class Meeting(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Project(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    participants = models.ManyToManyField(UserMachineModel)
+
+    def __str__(self):
+        return self.title
