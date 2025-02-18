@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404
-from .models import Meeting, Project
-from .serializer import ProjectSerializer
+from .models import Meeting, Project, Machine
+from .serializer import ProjectSerializer, MachineSerializer
 from samples.models import UserMachineModel
 import json
 
@@ -77,3 +77,8 @@ def meeting_update(request, pk):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+
+class MachineViewSet(viewsets.ModelViewSet):
+    queryset = Machine.objects.all()
+    serializer_class = MachineSerializer
